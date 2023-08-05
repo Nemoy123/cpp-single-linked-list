@@ -97,6 +97,7 @@ class SingleLinkedList {
         // Возвращает ссылку на самого себя
         // Инкремент итератора, не указывающего на существующий элемент списка, приводит к неопределённому поведению
         BasicIterator& operator++() noexcept {
+             assert (node_ != nullptr);
             node_ = node_->next_node;
             return *this;   
          }
@@ -108,6 +109,7 @@ class SingleLinkedList {
         // Инкремент итератора, не указывающего на существующий элемент списка,
         // приводит к неопределённому поведению
         BasicIterator operator++(int) noexcept {
+                assert (node_ != nullptr);
                BasicIterator old_node_ =  *this;
                node_ = node_->next_node;
                return old_node_;
@@ -117,6 +119,7 @@ class SingleLinkedList {
         // Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
         // приводит к неопределённому поведению
         [[nodiscard]] reference operator*() const noexcept {
+             assert (node_ != nullptr);
             return node_->value;
         }
 
@@ -124,6 +127,7 @@ class SingleLinkedList {
         // Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
         // приводит к неопределённому поведению
         [[nodiscard]] pointer operator->() const noexcept {
+             assert (node_ != nullptr);
             return &node_->value;
         }
 
@@ -237,7 +241,7 @@ public:
     //  * Возвращает итератор на вставленный элемент
     //  * Если при создании элемента будет выброшено исключение, список останется в прежнем состоянии
     Iterator InsertAfter(ConstIterator pos, const Type& value) {
-        
+            assert(pos.node_ != nullptr);
             Node* new_node = new Node (value, pos.node_->next_node); 
             pos.node_->next_node = new_node;
             ++size_;
@@ -267,6 +271,7 @@ public:
     }
 
     Iterator EraseAfter (ConstIterator pos) noexcept { // удаляет элемент след после указаного
+        assert(pos.node_ != nullptr);
         // запомнить адрес след элемента
             Node* node_del = pos.node_->next_node;
         // запомнить адрес после след
@@ -290,24 +295,16 @@ public:
     void Clear() noexcept;
     void PopFront() noexcept;
     
-    
-    
-    template <typename Iter>
+
+     template <typename Iter>
     SingleLinkedList<Type> ListCopyFunc (Iter begin, Iter end) const {
         SingleLinkedList tmp;
-      
-       vector <Iter> rever;
-       for (auto& it = begin; it !=end; ++it){ 
-        rever.push_back (it);
-       }
-       std::reverse(rever.begin(), rever.end());
-        for (auto& item : rever) {
-            tmp.PushFront(*item);
-        }
-        
+      Iterator temp = tmp.before_begin();
+      for (auto i = begin; i != end; ++i ) {
+            temp = tmp.InsertAfter (temp, *i);
+      }  
         return tmp;
     }
-    
     
         
 private:
@@ -320,6 +317,7 @@ private:
 
 template <typename Type>
 void SingleLinkedList<Type>::PopFront() noexcept {
+    assert(head_.next_node != nullptr);
     Node* first = head_.next_node;
     Node* second = first->next_node;
     head_.next_node = second;
